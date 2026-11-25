@@ -50,6 +50,7 @@ namespace RcloneOssManager
                 catch (Exception ex) { ManagerLog.Write("开机恢复挂载失败", "", "", ex.Message); }
                 return;
             }
+            WarnIfElevated();
             showSignal = CreateShowSignal();
             if (argv != null && argv.Any(x => x == "--settings")) { using (var dialog = new RuntimeSettingsForm()) dialog.ShowDialog(); return; }
             try
@@ -72,6 +73,35 @@ namespace RcloneOssManager
             try { return new EventWaitHandle(false, EventResetMode.AutoReset, SingleInstanceChannel.ShowEventName); }
             catch (UnauthorizedAccessException) { return null; }
             catch (IOException) { return null; }
+        }
+
+        /// <summary>管理员令牌启动时弹窗提示：本地盘符只进管理员登录会话，标准权限的资源管理器不可见。</summary>
+        /// <remarks>UAC 下管理员与标准令牌属于不同登录会话，WinFsp 本地盘模式的盘符仅对创建它的会话可见；双击快捷方式与开机自启均为标准令牌，只有从管理员终端启动才会踩中。检测失败时视为普通环境，不打断启动。</remarks>
+        internal static void WarnIfElevated()
+        {
+            try
+            {
+                IntPtr token;
+                if (!NativeMethods.OpenProcessToken(NativeMethods.GetCurrentProcess(), NativeMethods.TokenQuery, out token)) return;
+                try
+                {
+                    int info;
+                    int returnLength;
+                    if (!NativeMethods.GetTokenInformation(token, NativeMethods.TokenElevation, out info, sizeof(int), out returnLength)) return;
+                    if (info == 0) return; // 标准令牌，直接放行。
+                }
+                finally { NativeMethods.CloseHandle(token); }
+                var choice = MessageBox.Show(
+                    "当前正以管理员身份运行。\r\n\r\n" +
+                    "UAC 下管理员令牌挂载的本地盘符只对管理员会话可见，标准权限的资源管理器（含开机自启）将看不到挂载的盘符。\r\n\r\n" +
+                    "建议改为普通方式启动（例如双击桌面快捷方式）。\r\n\r\n" +
+                    "是否仍要继续？",
+                    "OSS 管理器", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (choice == DialogResult.No) Environment.Exit(0);
+            }
+            catch (DllNotFoundException) { }
+            catch (EntryPointNotFoundException) { }
+            catch (Exception) { }
         }
     }
 }

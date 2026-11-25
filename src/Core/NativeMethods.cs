@@ -107,6 +107,26 @@ namespace RcloneOssManager
             catch (SEHException) { return false; }
         }
 
+        // ---- 令牌提升检测（advapi32/kernel32）：判断进程是否以管理员令牌运行 ----
+
+        internal const int TokenQuery = 0x0008;
+        internal const int TokenElevation = 20;
+
+        [DllImport("kernel32.dll")]
+        internal static extern IntPtr GetCurrentProcess();
+
+        [DllImport("advapi32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool OpenProcessToken(IntPtr process, int access, out IntPtr token);
+
+        [DllImport("advapi32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool GetTokenInformation(IntPtr token, int classId, out int info, int length, out int returnLength);
+
+        [DllImport("kernel32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool CloseHandle(IntPtr handle);
+
         [DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();
     }
