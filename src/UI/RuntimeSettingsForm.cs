@@ -19,7 +19,7 @@ namespace RcloneOssManager
         {
             Text = "路径与配置"; ClientSize = new Size(760, 500); MinimumSize = new Size(650, 500); StartPosition = FormStartPosition.CenterParent;
             Font = new Font("Microsoft YaHei UI", 10F); BackColor = UiStyle.Surface; ForeColor = UiStyle.Text; Icon = RuntimePaths.LoadIcon(); MinimizeBox = false; MaximizeBox = false;
-            executable.Text = RuntimePaths.Current.RcloneExecutable; configuration.Text = RuntimePaths.Current.RcloneConfiguration; fileManager.Text = RuntimePaths.Current.FileManagerExecutable; darkTheme.Checked = UiStyle.IsDark;
+            executable.Text = RuntimePaths.Current.PersistableExecutable; configuration.Text = RuntimePaths.Current.RcloneConfiguration; fileManager.Text = RuntimePaths.Current.FileManagerExecutable; darkTheme.Checked = UiStyle.IsDark;
             var layout = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(20), RowCount = 8, ColumnCount = 1 };
             foreach (var height in new[] { 36, 56, 56, 56, 66, 44, 42 }) layout.RowStyles.Add(new RowStyle(SizeType.Absolute, height)); layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
             layout.Controls.Add(new Label { Text = "程序、配置与文件管理器分离，换电脑不需要相同盘符", Dock = DockStyle.Fill, Font = new Font(Font, FontStyle.Bold), ForeColor = UiStyle.AccentText }, 0, 0);

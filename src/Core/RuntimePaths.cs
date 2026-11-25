@@ -35,6 +35,22 @@ namespace RcloneOssManager
         internal static RuntimePaths Current { get { return current ?? (current = Load()); } }
         internal string SettingsFile { get { return settingsFile; } }
 
+        /// <summary>适合写回设置的 rclone 路径；内嵌引擎释放路径返回空，避免下次启动依赖临时目录。</summary>
+        internal string PersistableExecutable
+        {
+            get
+            {
+                if (String.IsNullOrWhiteSpace(RcloneExecutable)) return String.Empty;
+                try
+                {
+                    var full = Path.GetFullPath(RcloneExecutable);
+                    var runtimeRoot = Path.GetFullPath(Path.Combine(dataFolder, "runtime")) + Path.DirectorySeparatorChar;
+                    return full.StartsWith(runtimeRoot, StringComparison.OrdinalIgnoreCase) ? String.Empty : RcloneExecutable;
+                }
+                catch (Exception) { return RcloneExecutable; }
+            }
+        }
+
         /// <summary>加载路径设置；优先使用程序目录旁的设置，其次使用用户数据目录。</summary>
         /// <param name="baseDirectory">程序目录，测试时可独立指定。</param><param name="dataDirectory">用户数据目录。</param><returns>路径设置。</returns>
         internal static RuntimePaths Load(string baseDirectory = null, string dataDirectory = null)

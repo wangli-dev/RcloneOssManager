@@ -751,7 +751,7 @@ namespace RcloneOssManager
         private void ToggleTheme()
         {
             var next = UiStyle.IsDark ? "light" : "dark";
-            try { RuntimePaths.Current.Save(RuntimePaths.Current.RcloneExecutable, RuntimePaths.Current.RcloneConfiguration, RuntimePaths.Current.FileManagerExecutable, next); }
+            try { RuntimePaths.Current.Save(RuntimePaths.Current.PersistableExecutable, RuntimePaths.Current.RcloneConfiguration, RuntimePaths.Current.FileManagerExecutable, next); }
             catch (Exception ex) { MessageBox.Show(this, "切换皮肤失败：" + ex.Message, "皮肤", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
             try
             {
